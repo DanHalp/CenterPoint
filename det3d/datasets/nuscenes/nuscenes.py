@@ -106,9 +106,8 @@ class NuScenesDataset(PointCloudDataset):
                     cls_infos, int(len(cls_infos) * ratio)
                 ).tolist()
 
-            #print(f"self._nusc_infos: {len(self._nusc_infos)}")
-            self._nusc_infos = self._nusc_infos[:int(len(self._nusc_infos) * 5 / 100)]  # len(self._nusc_infos) * set_size / 100 * 4-> set_size = 10%
-            #print(f"after: {len(self._nusc_infos)}")
+            self.set_size = 5  # take the 5% of the dataset
+            self._nusc_infos = self._nusc_infos[:int(len(self._nusc_infos) * self.set_size / 100)] 
             
             _cls_infos = {name: [] for name in self._class_names}
             for info in self._nusc_infos:
