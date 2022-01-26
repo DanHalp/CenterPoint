@@ -18,6 +18,8 @@ from .. import builder
 from ..registry import NECKS
 from ..utils import build_norm_layer
 
+from .BiFPN import BiFPN_Network_SkipConnections
+
 
 @NECKS.register_module
 class RPN(nn.Module):
@@ -112,6 +114,13 @@ class RPN(nn.Module):
         self.blocks = nn.ModuleList(blocks)
         self.deblocks = nn.ModuleList(deblocks)
 
+        self.bifpn_sizes = [128]
+        if len(self.bifpn_sizes):
+            self.bifpn = BiFPN_Network_SkipConnections([256] * 3, self.bifpn_sizes)
+            self.last_block = nn.Sequential(nn.Conv2d(256 * 3, 256, 1, padding=0, bias=False),
+                                            nn.BatchNorm2d(256),
+                                            nn.ReLU())
+
         logger.info("Finish RPN Initialization")
 
     @property
@@ -123,21 +132,21 @@ class RPN(nn.Module):
 
     def _make_layer(self, inplanes, planes, num_blocks, stride=1):
 
-        block = Sequential(
+        block = nn.ModuleList([Sequential(
             nn.ZeroPad2d(1),
             nn.Conv2d(inplanes, planes, 3, stride=stride, bias=False),
             build_norm_layer(self._norm_cfg, planes)[1],
             # nn.BatchNorm2d(planes, eps=1e-3, momentum=0.01),
             nn.ReLU(),
-        )
+        )])
 
         for j in range(num_blocks):
-            block.add(nn.Conv2d(planes, planes, 3, padding=1, bias=False))
-            block.add(
-                build_norm_layer(self._norm_cfg, planes)[1],
-                # nn.BatchNorm2d(planes, eps=1e-3, momentum=0.01)
-            )
-            block.add(nn.ReLU())
+            
+            block.append(nn.Sequential(nn.Conv2d(planes, planes, 3, padding=1, bias=False),
+            build_norm_layer(self._norm_cfg, planes)[1],
+            nn.ReLU()
+            ))
+        
 
         return block, planes
 
@@ -150,11 +159,27 @@ class RPN(nn.Module):
     def forward(self, x):
         ups = []
         for i in range(len(self.blocks)):
-            x = self.blocks[i](x)
+            if len(self.bifpn_sizes) > 0 and i + 1 == len(self.blocks):
+                orig_layers = []
+                for j, layer in enumerate(self.blocks[i]):
+                    x = layer(x)
+                    if i + 1 == len(self.blocks):
+                        orig_layers.append(x)
+                
+                N = len(orig_layers)
+                feature_maps = self.bifpn.forward(orig_layers[-1], orig_layers[-(int(N / 2) + 1)], orig_layers[-N])
+                x = torch.cat(feature_maps[:3], axis=1)
+                x = self.last_block(x) 
+            else:
+                # print(self.blocks[i])
+                x = nn.Sequential(*self.blocks[i])(x)
+
             if i - self._upsample_start_idx >= 0:
                 ups.append(self.deblocks[i - self._upsample_start_idx](x))
         if len(ups) > 0:
             x = torch.cat(ups, dim=1)
+
+        
 
         return x
 

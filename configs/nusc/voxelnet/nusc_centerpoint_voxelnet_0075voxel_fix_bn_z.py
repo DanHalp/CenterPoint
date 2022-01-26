@@ -86,6 +86,7 @@ test_cfg = dict(
 dataset_type = "NuScenesDataset"
 nsweeps = 10
 data_root = "data/nuScenes"
+set_size = 10
 
 db_sampler = dict(
     type="GT-AUG",
@@ -129,7 +130,7 @@ train_preprocessor = dict(
     global_rot_noise=[-0.78539816, 0.78539816],
     global_scale_noise=[0.9, 1.1],
     global_translate_std=0.5,
-    db_sampler=db_sampler,
+    db_sampler = None, #db_sampler=db_sampler,
     class_names=class_names,
 )
 

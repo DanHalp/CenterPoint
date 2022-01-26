@@ -30,6 +30,27 @@ from .utils import (
     synchronize,
 )
 
+# from torch.utils.tensorboard import SummaryWriter
+from tensorboardX import SummaryWriter
+from pathlib import Path
+import numpy as np
+import os
+
+
+def find_next_folder_name(arr):
+    n = len(arr)
+    exsits  = {int(arr[i]) for i in range(n) if arr[i].isdigit()}
+    for i in range(n):
+        if i not in exsits:
+            n = i
+            break
+    return str(n)
+
+tb_path = Path("TrackingFolder") / "NoBifpn"
+tb_path.mkdir(parents=True, exist_ok=True)
+subdirs = os.listdir(tb_path)
+tb_path = tb_path / find_next_folder_name(subdirs)
+tb_log = SummaryWriter(tb_path)
 
 def example_to_device(example, device, non_blocking=False) -> dict:
     example_torch = {}
@@ -183,6 +204,7 @@ class Trainer(object):
         self._hooks = []
         self._epoch = 0
         self._iter = 0
+        self._iter_val = 0
         self._inner_iter = 0
         self._max_epochs = 0
         self._max_iters = 0
@@ -408,7 +430,7 @@ class Trainer(object):
             outputs = self.batch_processor_inline(
                 self.model, data_batch, train_mode=True, **kwargs
             )
-
+           
             if not isinstance(outputs, dict):
                 raise TypeError("batch_processor() must return a dict")
             if "log_vars" in outputs:
@@ -416,6 +438,16 @@ class Trainer(object):
             self.outputs = outputs
             self.call_hook("after_train_iter")
             self._iter += 1
+            
+            global tb_log
+            losses_list = outputs["log_vars"]["loss"]
+            labels = ["Car", "Truck/Construction_Vehicle", "Bus/Trailer", "Barrier", "Motorcycle/Bicycle", "Pedestrian/Traffic_Cone"]
+            for i in range(len(losses_list)):
+                tb_log.add_scalar("train/"+ labels[i], losses_list[i], self._iter)
+
+             # print(outputs["loss"])
+            # exit()
+
 
         self.call_hook("after_train_epoch")
         self._epoch += 1
@@ -441,6 +473,13 @@ class Trainer(object):
                 outputs = self.batch_processor(
                     self.model, data_batch, train_mode=False, **kwargs
                 )
+                # self._iter_val += 1
+                # global tb_log
+                # val_losses_list = outputs["log_vars"]["loss"]
+                # labels = ["Car", "Truck/Construction_Vehicle", "Bus/Trailer", "Barrier", "Motorcycle/Bicycle", "Pedestrian/Traffic_Cone"]
+                # for i in range(len(losses_list)):
+                # tb_log.add_scalar("val/"+ labels[i], losses_list[i], self._iter_val)
+
             for output in outputs:
                 token = output["metadata"]["token"]
                 for k, v in output.items():
@@ -502,10 +541,11 @@ class Trainer(object):
                 running order and epochs.
             max_epochs (int)
         """
+
         assert isinstance(data_loaders, list)
         assert torchie.is_list_of(workflow, tuple)
         assert len(data_loaders) == len(workflow)
-
+        
         self._max_epochs = max_epochs
         work_dir = self.work_dir if self.work_dir is not None else "NONE"
         self.logger.info(
