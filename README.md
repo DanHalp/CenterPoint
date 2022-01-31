@@ -133,3 +133,19 @@ This project is not possible without multiple great opensourced codebases. We li
 * [mmcv](https://github.com/open-mmlab/mmcv)
 * [mmdetection](https://github.com/open-mmlab/mmdetection)
 * [OpenPCDet](https://github.com/open-mmlab/OpenPCDet)
+
+
+Our papers \ Repos:
+1) Center Point: https://arxiv.org/abs/2006.11275
+2) BiFPN horizon Robotics: https://arxiv.org/abs/2006.15505
+3) BiFPN GitHub Repo: https://github.com/ViswanathaReddyGajjala/EfficientDet-Pytorch
+4) Metrics GitHub repo: https://github.com/rafaelpadilla/Object-Detection-Metrics
+
+Useful Links:
+1) GCP GPU Zones: https://cloud.google.com/compute/docs/gpus/gpu-regions-zones
+
+GCP VM Settings:
+- Intel N1-highmem-4 (4vCPU, 26 GB Memory)
+- Nvidia Tesla T4
+- 500 GB SSD
+
