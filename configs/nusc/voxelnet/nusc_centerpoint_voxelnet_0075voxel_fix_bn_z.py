@@ -74,9 +74,9 @@ test_cfg = dict(
         use_multi_class_nms=False,
         nms_pre_max_size=1000,
         nms_post_max_size=83,
-        nms_iou_threshold=0.2,
+        nms_iou_threshold=0.2, 
     ),
-    score_threshold=0.1,
+    score_threshold=0.3, # 0.1
     pc_range=[-54, -54],
     out_size_factor=get_downsample_factor(model),
     voxel_size=[0.075, 0.075]
@@ -223,7 +223,7 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 20
+total_epochs = 14
 device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"

@@ -114,7 +114,7 @@ class RPN(nn.Module):
         self.blocks = nn.ModuleList(blocks)
         self.deblocks = nn.ModuleList(deblocks)
 
-        self.bifpn_sizes = [128]
+        self.bifpn_sizes = [128]  # change here to add BiFPN block e.g. 128 for 1 block with 128 channels
         if len(self.bifpn_sizes):
             self.bifpn = BiFPN_Network_SkipConnections([256] * 3, self.bifpn_sizes)
             self.last_block = nn.Sequential(nn.Conv2d(256 * 3, 256, 1, padding=0, bias=False),
