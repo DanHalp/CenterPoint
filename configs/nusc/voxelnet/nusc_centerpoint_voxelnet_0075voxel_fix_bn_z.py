@@ -74,9 +74,9 @@ test_cfg = dict(
         use_multi_class_nms=False,
         nms_pre_max_size=1000,
         nms_post_max_size=83,
-        nms_iou_threshold=0.2,
+        nms_iou_threshold=0.2, 
     ),
-    score_threshold=0.1,
+    score_threshold=0.3, # 0.1
     pc_range=[-54, -54],
     out_size_factor=get_downsample_factor(model),
     voxel_size=[0.075, 0.075]
@@ -86,6 +86,7 @@ test_cfg = dict(
 dataset_type = "NuScenesDataset"
 nsweeps = 10
 data_root = "data/nuScenes"
+set_size = 10
 
 db_sampler = dict(
     type="GT-AUG",
@@ -129,7 +130,7 @@ train_preprocessor = dict(
     global_rot_noise=[-0.78539816, 0.78539816],
     global_scale_noise=[0.9, 1.1],
     global_translate_std=0.5,
-    db_sampler=db_sampler,
+    db_sampler = None, #db_sampler=db_sampler,
     class_names=class_names,
 )
 
@@ -222,7 +223,7 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 20
+total_epochs = 14
 device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"

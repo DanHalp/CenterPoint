@@ -43,6 +43,8 @@ class NuScenesDataset(PointCloudDataset):
         load_interval=1,
         **kwargs,
     ):
+        # self.set_size = kwargs.get("set_size", 15)
+
         self.load_interval = load_interval 
         super(NuScenesDataset, self).__init__(
             root_path, info_path, pipeline, test_mode=test_mode, class_names=class_names
@@ -78,7 +80,9 @@ class NuScenesDataset(PointCloudDataset):
         with open(self._info_path, "rb") as f:
             _nusc_infos_all = pickle.load(f)
 
-        _nusc_infos_all = _nusc_infos_all[::self.load_interval]
+        # print(f"_nusc_infos_all: {len(_nusc_infos_all)}")
+        # _nusc_infos_all = _nusc_infos_all[::self.load_interval][:500]
+        # print(f"after _nusc_infos_all: {len(_nusc_infos_all)}")
 
         if not self.test_mode:  # if training
             self.frac = int(len(_nusc_infos_all) * 0.25)
@@ -102,6 +106,9 @@ class NuScenesDataset(PointCloudDataset):
                     cls_infos, int(len(cls_infos) * ratio)
                 ).tolist()
 
+            self.set_size = 5  # take the 5% of the dataset
+            self._nusc_infos = self._nusc_infos[:int(len(self._nusc_infos) * self.set_size / 100)] 
+            
             _cls_infos = {name: [] for name in self._class_names}
             for info in self._nusc_infos:
                 for name in set(info["gt_names"]):

@@ -5,6 +5,7 @@ All Rights Reserved 2019-2020.
 """
 import torch
 
+from det3d.ops.iou3d_nms import iou3d_nms_cuda, iou3d_nms_utils
 from . import iou3d_nms_cuda
 import numpy as np 
 

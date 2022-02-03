@@ -132,7 +132,7 @@ train_preprocessor = dict(
     global_rot_noise=[-0.78539816, 0.78539816],
     global_scale_noise=[0.9, 1.1],
     global_translate_std=0.5,
-    db_sampler=db_sampler,
+    db_sampler=None, #db_sampler=db_sampler,
     class_names=class_names,
 )
 
@@ -166,8 +166,8 @@ test_pipeline = [
     dict(type="Reformat"),
 ]
 
-train_anno = "data/nuScenes/infos_train_10sweeps_withvelo_filter_True.pkl"
-val_anno = "data/nuScenes/infos_val_10sweeps_withvelo_filter_True.pkl"
+train_anno = "./data/nuScenes/infos_train_10sweeps_withvelo_filter_True.pkl"
+val_anno = "./data/nuScenes/infos_val_10sweeps_withvelo_filter_True.pkl"
 test_anno = None
 
 data = dict(
