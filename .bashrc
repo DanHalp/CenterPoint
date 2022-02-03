@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -112,6 +113,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
+=======
+>>>>>>> d488b10fe72679db4473992e75ab110f9cb8a134
 alias gs="git status"
 alias gsh="git status show"
 alias gd="git diff"
